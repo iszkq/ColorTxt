@@ -237,7 +237,7 @@ jobs:
           test -d "$APP"
           VERSION=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")
           test "v$VERSION" = "$RELEASE_TAG"
-          lipo -verify_arch arm64 "$APP/App"
+          lipo "$APP/App" -verify_arch arm64
           cp -R "$APP" "$RUNNER_TEMP/ipa/Payload/"
           (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/mobile/output/colortxt-${RELEASE_TAG#v}-ios-unsigned.ipa" Payload)
           shasum -a 256 output/*.ipa > output/iOS-SHA256SUMS.txt
