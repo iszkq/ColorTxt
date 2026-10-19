@@ -20,6 +20,7 @@ env:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: release-${{ github.ref }}
@@ -274,6 +275,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
+
+      - name: Load release notes from workflow revision
+        run: git show "$GITHUB_SHA:docs/releases/$RELEASE_TAG.md" > "docs/releases/$RELEASE_TAG.md"
 
       - name: Validate reused builds
         if: inputs.artifact_run_id != ''
