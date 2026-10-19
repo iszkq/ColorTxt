@@ -37,7 +37,7 @@
 | --- | --- |
 | Windows x64 | [安装版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-Setup.exe) / [便携版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-Portable.exe) |
 | macOS | [Apple Silicon](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-arm64.dmg) / [Intel x64](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-x64.dmg) |
-| Linux | [arm64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-arm64.AppImage) / [x64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-x64.AppImage) |
+| Linux | [arm64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-arm64.AppImage) / [x64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-x86_64.AppImage) |
 | Android 7.0+ | [已签名 APK](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-android.apk) |
 | iOS / iPadOS 15.0+ | [真机 arm64 未签名 IPA](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-ios-unsigned.ipa)，需自行签名后安装 |
 

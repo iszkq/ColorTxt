@@ -8,6 +8,8 @@
 
 手动重建：在仓库 Actions → Release → Run workflow 中填写已有标签（例如 `v1.0.1`）。工作流按该标签检出源码，产物上传到对应 Release。部分任务失败可使用 Re-run failed jobs；修复源码时使用新的提交与版本标签，避免静默替换已发布的源码标签。
 
+如果七个平台构建全部成功、仅发布步骤失败，可以填写原运行编号 `artifact_run_id`，复用已有安装包并重试发布；该编号应与填写的版本标签对应。流程会检查七个构建均成功，并再次核验全部安装包文件名。Linux x64 的 AppImage 使用 electron-builder 的 `x86_64` 文件名。
+
 ## Android 签名
 
 仓库 Actions Secrets 使用以下四项：

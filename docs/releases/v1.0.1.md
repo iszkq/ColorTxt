@@ -18,7 +18,7 @@
 | Windows x64 | `colortxt-1.0.1-Setup.exe`、`colortxt-1.0.1-Portable.exe` |
 | macOS Apple Silicon | `colortxt-1.0.1-arm64.dmg` |
 | macOS Intel | `colortxt-1.0.1-x64.dmg` |
-| Linux arm64 / x64 | `colortxt-1.0.1-arm64.AppImage`、`colortxt-1.0.1-x64.AppImage` |
+| Linux arm64 / x64 | `colortxt-1.0.1-arm64.AppImage`、`colortxt-1.0.1-x86_64.AppImage` |
 | Android 7.0+ | `colortxt-1.0.1-android.apk`，已使用本分支持久发布密钥签名 |
 | iOS / iPadOS 15.0+ | `colortxt-1.0.1-ios-unsigned.ipa`，真机 arm64 未签名包，需自行签名后安装 |
 

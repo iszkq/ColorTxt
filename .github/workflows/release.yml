@@ -10,6 +10,10 @@ on:
         description: Version tag to build
         required: true
         default: v1.0.1
+      artifact_run_id:
+        description: Optional completed run ID to reuse all seven successful builds
+        required: false
+        type: string
 
 env:
   RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
@@ -23,6 +27,7 @@ concurrency:
 
 jobs:
   build:
+    if: inputs.artifact_run_id == ''
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
@@ -151,6 +156,7 @@ jobs:
           if-no-files-found: error
 
   android:
+    if: inputs.artifact_run_id == ''
     name: Build Android release APK
     runs-on: ubuntu-latest
     defaults:
@@ -208,6 +214,7 @@ jobs:
         run: rm -f "$RUNNER_TEMP/colortxt.p12"
 
   ios:
+    if: inputs.artifact_run_id == ''
     name: Build iOS unsigned IPA
     runs-on: macos-latest
     defaults:
@@ -248,6 +255,7 @@ jobs:
           if-no-files-found: error
 
   publish:
+    if: ${{ !cancelled() && ((needs.build.result == 'success' && needs.android.result == 'success' && needs.ios.result == 'success') || (inputs.artifact_run_id != '' && needs.build.result == 'skipped' && needs.android.result == 'skipped' && needs.ios.result == 'skipped')) }}
     name: Publish to GitHub Releases
     needs: [build, android, ios]
     runs-on: ubuntu-latest
@@ -267,12 +275,22 @@ jobs:
           node-version-file: .node-version
           cache: npm
 
+      - name: Validate reused builds
+        if: inputs.artifact_run_id != ''
+        env:
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ARTIFACT_RUN_ID/jobs?per_page=100" > "$RUNNER_TEMP/build-jobs.json"
+          node -e "const fs=require('fs');const jobs=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/build-jobs.json')).jobs;const names=['Build Windows-x64','Build macOS-arm64','Build macOS-x64','Build Linux-arm64','Build Linux-x64','Build Android release APK','Build iOS unsigned IPA'];for(const name of names){if(!jobs.some(j=>j.name===name&&j.conclusion==='success'))throw Error('Missing successful build: '+name)}"
+
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: release-*
           merge-multiple: true
+          run-id: ${{ inputs.artifact_run_id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Collect release assets
         shell: bash
@@ -290,7 +308,7 @@ jobs:
           VERSION="${RELEASE_TAG#v}"
           for file in "colortxt-$VERSION-Setup.exe" "colortxt-$VERSION-Portable.exe" \
             "colortxt-$VERSION-arm64.dmg" "colortxt-$VERSION-x64.dmg" \
-            "colortxt-$VERSION-arm64.AppImage" "colortxt-$VERSION-x64.AppImage" \
+            "colortxt-$VERSION-arm64.AppImage" "colortxt-$VERSION-x86_64.AppImage" \
             "colortxt-$VERSION-android.apk" "colortxt-$VERSION-ios-unsigned.ipa"; do
             test -s "release/$file" || { echo "Missing $file"; exit 1; }
           done
