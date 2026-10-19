@@ -23,7 +23,7 @@
 
 
 <h3 align="center">
-  <a href="#下载">下载</a> ｜ <a href="#功能特性">功能特性</a> ｜ <a href="./IMAGES.md">预览图</a> ｜ <a href="#常见问题">常见问题</a>
+  <a href="#下载">下载</a> ｜ <a href="#功能特性桌面端">桌面功能</a> ｜ <a href="#移动端与页面预览">移动端</a> ｜ <a href="./IMAGES.md">预览图</a> ｜ <a href="#常见问题">常见问题</a>
 </h3>
 
 
@@ -45,7 +45,7 @@
 
 移动端保留多色正文和工具感，支持 TXT / Markdown / 未加密 CTZ 导入、章节导航、搜索、五色标注、笔记、书签、主题与排版。笔记可导出 Markdown / JSON，数据保存在本机。移动端首版尚未完成真机验收；AI、书源、语音、EPUB/PDF、WebDAV 和多端自动同步尚未移植。
 
-在 mobile 目录运行 npm ci、npm run dev，然后打开 [页面预览工作台](http://localhost:5174/preview.html)，可直接查看 15 个页面与状态、切换 iOS / Android 尺寸和主题。预览使用独立内存示例，不修改正式书库。
+在 `mobile` 目录运行 `npm ci`、`npm run dev`，然后打开 [页面预览工作台](http://localhost:5174/preview.html)，可直接查看 15 个页面与状态、切换 iOS / Android 尺寸和主题。预览使用独立内存示例，不修改正式书库。
 
 ### 所有客户端默认书籍
 
