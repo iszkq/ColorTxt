@@ -1,3 +1,39 @@
+## v1.0.1（2026-10-19）
+
+本版本基于上游 ColorTxt 3.8.14，新增移动端，并将此分支的桌面端与移动端版本统一为 1.0.1。
+
+## 新增
+
+- 新增 iOS、Android 移动端：保留彩读多色正文和工具感，提供书架、文件导入、阅读、章节目录、全文搜索、全局笔记和阅读设置。
+- 支持选中文字后进行五色标注、直线或波浪线标注、添加和编辑笔记、添加书签；支持笔记 Markdown / JSON 导出及兼容 JSON 导入。
+- 支持 TXT、Markdown、未加密 CTZ 导入，支持 UTF-8、UTF-16、GB18030 文本编码。
+- 支持纸色、明亮、深色主题，字号、行距、宋体及关键词上色，自动保存本机阅读进度。
+- 所有客户端预装用户提供的《圣经》：66 卷、1,189 章、31,102 节，离线可读，升级不覆盖已有正文和笔记。
+- 提供 15 个页面与状态的浏览器预览工作台，可切换 iOS / Android 尺寸、主题并直接访问独立页面链接；预览数据与正式书库隔离。
+
+## 下载与安装
+
+| 平台 | 文件 |
+| --- | --- |
+| Windows x64 | `colortxt-1.0.1-Setup.exe`、`colortxt-1.0.1-Portable.exe` |
+| macOS Apple Silicon | `colortxt-1.0.1-arm64.dmg` |
+| macOS Intel | `colortxt-1.0.1-x64.dmg` |
+| Linux arm64 / x64 | `colortxt-1.0.1-arm64.AppImage`、`colortxt-1.0.1-x64.AppImage` |
+| Android 7.0+ | `colortxt-1.0.1-android.apk`，已使用本分支持久发布密钥签名 |
+| iOS / iPadOS 15.0+ | `colortxt-1.0.1-ios-unsigned.ipa`，真机 arm64 未签名包，需自行签名后安装 |
+
+桌面 macOS 安装包未做 Apple 公证；Windows 安装包未配置商业代码签名。iOS 文件为真机应用包，不能直接安装，也不是模拟器包。请用自己的 Apple 签名方式重新签名；可安装设备及有效期由你的证书与描述文件决定。
+
+## 支持范围
+
+移动端是首版实现，尚未完成 iOS / Android 真机验收。移动端暂未移植桌面端的 AI、书源、语音、EPUB/PDF、WebDAV、多端自动同步及加密 CTZX；Markdown 按纯文本显示。各设备进度、笔记独立保存，卸载前请导出备份。
+
+构建流程仅在全部平台安装包齐备后发布，并提供 `SHA256SUMS.txt` 校验文件。源码、移动端构建与自行签名说明见 [仓库](https://github.com/iszkq/ColorTxt) 和 [移动端发布指南](https://github.com/iszkq/ColorTxt/blob/main/docs/MOBILE_RELEASE.md)。
+
+---
+
+以下保留上游版本更新记录。
+
 ## 3.8.14
 
 改进：

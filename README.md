@@ -1,6 +1,6 @@
 <h1>
   <p align="center">
-    <img src="./resources/icon.png" width="32"> 彩读｜ColorTxt 3.0 <span style="color: orange">书源</span> × <span style="color: orange">AI+</span>
+    <img src="./resources/icon.png" width="32"> 彩读｜ColorTxt v1.0.1 <span style="color: orange">书源</span> × <span style="color: orange">AI+</span>
   </p>
 </h1>
 
@@ -29,15 +29,31 @@
 
 ## 下载
 
-按操作系统选择安装包 `v3.8.14`（也可前往 [Releases](https://github.com/ssnangua/ColorTxt/releases) 查看全部版本与更新说明）：
+本仓库为 [iszkq/ColorTxt](https://github.com/iszkq/ColorTxt)，基于 [ssnangua/ColorTxt](https://github.com/ssnangua/ColorTxt) 继续开发，版本统一为 **v1.0.1**。保留桌面彩读，新增 iOS / Android 移动端。
 
-| 系统 | 下载 |
+前往 [v1.0.1 Release](https://github.com/iszkq/ColorTxt/releases/tag/v1.0.1) 查看安装包、中文更新说明及 SHA-256 校验文件。
+
+| 平台 | 下载 |
 | --- | --- |
-| Windows | [![安装包 x64](https://img.shields.io/badge/安装包-x64-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMy40NDkgOS43NSAyLjF2OS40NTFIMG0xMC45NDktOS42MDJMMjQgMHYxMS40SDEwLjk0OU0wIDEyLjZoOS43NXY5LjQ1MUwwIDIwLjY5OU0xMC45NDkgMTIuNkgyNFYyNGwtMTIuOS0xLjgwMSIvPjwvc3ZnPg%3D%3D)](https://github.com/ssnangua/ColorTxt/releases/download/v3.8.14/colortxt-3.8.14-Setup.exe) [![便携版 x64](https://img.shields.io/badge/便携版-x64-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMy40NDkgOS43NSAyLjF2OS40NTFIMG0xMC45NDktOS42MDJMMjQgMHYxMS40SDEwLjk0OU0wIDEyLjZoOS43NXY5LjQ1MUwwIDIwLjY5OU0xMC45NDkgMTIuNkgyNFYyNGwtMTIuOS0xLjgwMSIvPjwvc3ZnPg%3D%3D)](https://github.com/ssnangua/ColorTxt/releases/download/v3.8.14/colortxt-3.8.14-Portable.exe) |
-| macOS | [![DMG Apple Silicon](https://img.shields.io/badge/DMG-Apple%20Silicon-black?logo=apple&logoColor=white)](https://github.com/ssnangua/ColorTxt/releases/download/v3.8.14/colortxt-3.8.14-arm64.dmg) [![DMG Intel x64](https://img.shields.io/badge/DMG-Intel%20x64-black?logo=apple&logoColor=white)](https://github.com/ssnangua/ColorTxt/releases/download/v3.8.14/colortxt-3.8.14-x64.dmg) |
-| Linux | [![AppImage arm64](https://img.shields.io/badge/AppImage-arm64-FCBF25?logo=linux&logoColor=white)](https://github.com/ssnangua/ColorTxt/releases/download/v3.8.14/colortxt-3.8.14-arm64.AppImage) [![AppImage x64](https://img.shields.io/badge/AppImage-x64-FCBF25?logo=linux&logoColor=white)](https://github.com/ssnangua/ColorTxt/releases/download/v3.8.14/colortxt-3.8.14-x86_64.AppImage) |
+| Windows x64 | [安装版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-Setup.exe) / [便携版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-Portable.exe) |
+| macOS | [Apple Silicon](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-arm64.dmg) / [Intel x64](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-x64.dmg) |
+| Linux | [arm64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-arm64.AppImage) / [x64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-x64.AppImage) |
+| Android 7.0+ | [已签名 APK](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-android.apk) |
+| iOS / iPadOS 15.0+ | [真机 arm64 未签名 IPA](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-ios-unsigned.ipa)，需自行签名后安装 |
 
-## 功能特性
+### 移动端与页面预览
+
+移动端保留多色正文和工具感，支持 TXT / Markdown / 未加密 CTZ 导入、章节导航、搜索、五色标注、笔记、书签、主题与排版。笔记可导出 Markdown / JSON，数据保存在本机。移动端首版尚未完成真机验收；AI、书源、语音、EPUB/PDF、WebDAV 和多端自动同步尚未移植。
+
+在 mobile 目录运行 npm ci、npm run dev，然后打开 [页面预览工作台](http://localhost:5174/preview.html)，可直接查看 15 个页面与状态、切换 iOS / Android 尺寸和主题。预览使用独立内存示例，不修改正式书库。
+
+### 所有客户端默认书籍
+
+Windows、macOS、Linux、Android、iOS 与移动网页端均预装用户提供的《圣经》（Bible1.csv）：66 卷、1,189 章、31,102 节，可离线阅读。首次启动加入书库，升级不覆盖已有正文、进度和笔记。来源文件的 SHA-256 和数量记录见 [provenance.json](./resources/builtin/provenance.json)。各设备数据独立保存，重要笔记请定期导出备份。
+
+更多说明：[移动端文档](./mobile/README.md) · [构建与自行签名](./docs/MOBILE_RELEASE.md) · [v1.0.1 中文更新说明](./docs/releases/v1.0.1.md)。
+
+## 功能特性（桌面端）
 
 |  | 功能 | 说明 |
 | :---: | --- | --- |

@@ -76,6 +76,7 @@ import { registerStealthReaderIpc } from "./stealthReader";
 import { registerStealthSettingsIpc, setStealthSettingsClosedHandler } from "./stealthSettingsWindow";
 import { resolveTerminalDefaultFontFace } from "./terminalFont";
 import { createFindBookDesktopShortcut } from "./findBookLaunch";
+import { ensureBuiltinBible } from "./builtinBooks";
 import {
   focusOrOpenFindBookWindow,
   focusOrOpenMainReaderWindow,
@@ -456,6 +457,8 @@ export function registerMainIpcHandlers(
     if (!win) return false;
     return shouldRestoreSessionByWindowId.get(win.id) === true;
   });
+
+  ipcMain.handle("books:ensureBuiltinBible", () => ensureBuiltinBible());
 
   /** 首屏侧栏 tab：同步返回本窗口是否会加载文件（恢复会话 / 待打开路径） */
   ipcMain.on("window:getInitialLoadIntent", (evt) => {

@@ -1,0 +1,35 @@
+{
+  "name": "colortxt-mobile",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "tsx --test tests/*.test.ts",
+    "sync": "npm run build && cap sync",
+    "android": "cap open android",
+    "ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "jszip": "^3.10.1",
+    "lucide-vue-next": "^0.468.0",
+    "vue": "^3.5.31"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-vue": "^5.2.3",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.3",
+    "vue-tsc": "^2.2.8"
+  }
+}

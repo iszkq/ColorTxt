@@ -1,13 +1,16 @@
 {
   "name": "colortxt",
   "private": true,
-  "version": "3.8.14",
+  "version": "1.0.1",
   "description": "一款会给内容上色的本地 TXT 小说阅读器，带给你不一样的阅读体验！",
   "type": "module",
   "main": "dist/main/index.js",
   "author": "kainanhong@gmail.com",
-  "homepage": "https://github.com/ssnangua/ColorTxt",
+  "homepage": "https://github.com/iszkq/ColorTxt",
   "scripts": {
+    "mobile:dev": "npm --prefix mobile run dev",
+    "mobile:build": "npm --prefix mobile run build",
+    "mobile:sync": "npm --prefix mobile run sync",
     "dev": "electron-vite dev",
     "dev:find": "electron-vite dev -- --find-book",
     "build": "electron-vite build && electron-rebuild -f -w better-sqlite3,opencc && node scripts/prune-pack-deps.mjs && electron-builder --publish never",
@@ -104,6 +107,10 @@
       "**/node_modules/@koromix/koffi-*/**"
     ],
     "extraResources": [
+      {
+        "from": "resources/builtin",
+        "to": "builtin"
+      },
       {
         "from": "resources/icon.png",
         "to": "icon.png"
@@ -202,7 +209,7 @@
       ],
       "publish": {
         "provider": "github",
-        "owner": "ssnangua",
+        "owner": "iszkq",
         "repo": "ColorTxt",
         "channel": "latest-${arch}"
       },
@@ -275,7 +282,7 @@
       ],
       "publish": {
         "provider": "github",
-        "owner": "ssnangua",
+        "owner": "iszkq",
         "repo": "ColorTxt",
         "channel": "latest-${arch}"
       },
@@ -285,7 +292,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "ssnangua",
+      "owner": "iszkq",
       "repo": "ColorTxt"
     }
   }

@@ -783,6 +783,17 @@ export function useAppWindowBindings(deps: {
     // 文件列表独立持久化：始终恢复，和“恢复上次阅读会话”开关解耦
     deps.fileSession.restoreFileListFromSession();
 
+    // Stable path preserves the bundled book's progress and notes across upgrades.
+    try {
+      const builtin = await window.colorTxt.ensureBuiltinBible();
+      if (!deps.txtFiles.value.some((file) => file.path === builtin.path)) {
+        deps.txtFiles.value = [...deps.txtFiles.value, builtin];
+        deps.persistFileListCache();
+      }
+    } catch (error) {
+      console.error("内置书籍初始化失败", error);
+    }
+
     const shouldRestoreSession = await window.colorTxt.shouldRestoreSession();
     if (shouldRestoreSession) {
       await deps.fileSession.tryRestoreSession();

@@ -694,6 +694,8 @@ const api = {
     } | null>,
   shouldRestoreSession: () =>
     ipcRenderer.invoke("window:shouldRestoreSession") as Promise<boolean>,
+  ensureBuiltinBible: () =>
+    ipcRenderer.invoke("books:ensureBuiltinBible") as Promise<{ name: string; path: string; size: number }>,
   /** 首屏用：本窗口是否会加载文件（新窗口为 false；首启恢复 / 打开方式为 true） */
   getInitialWindowLoadIntent: () =>
     ipcRenderer.sendSync("window:getInitialLoadIntent") as {
