@@ -1,0 +1,104 @@
+async (page) => {
+  const context = await page.context().browser().newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+  const p = await context.newPage(), errors=[], checks=[];
+  p.on('pageerror',e=>errors.push(e.message));
+  const assert=(ok,message)=>{if(!ok)throw new Error(message);};
+  const tap=async(name)=>{const el=p.getByRole('button',{name,exact:true});await el.scrollIntoViewIfNeeded();const b=await el.boundingBox();await p.touchscreen.tap(b.x+b.width/2,b.y+b.height/2);};
+  const cdp=await context.newCDPSession(p);
+  const touch=async(type,x,y)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y}]});
+  const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const visibleText=()=>p.locator('.selected-text').allTextContents();
+  try {
+    await p.goto('http://localhost:5174/index.html?preview=reader');
+    await p.getByRole('button',{name:'选择第1节',exact:true}).waitFor();
+    const source=p.locator('.verse-row .source-text').first();
+    const before=await source.boundingBox();
+    await p.touchscreen.tap(8,160);
+    await p.getByRole('button',{name:'退出沉浸阅读'}).waitFor();
+    const after=await source.boundingBox();
+    assert(Math.abs(before.y-after.y)<1,'Immersion shifts text');
+    assert(!await p.getByRole('button',{name:'返回书架'}).isVisible(),'Header remains visible');
+    await p.screenshot({path:'output/playwright/redesign-immersive.png'});
+    await p.touchscreen.tap(8,160);
+    await p.getByRole('button',{name:'返回书架'}).waitFor();
+    assert(Math.abs(before.y-(await source.boundingBox()).y)<1,'Restoring chrome shifts text');
+    checks.push('Blank tap enters/exits immersion without text movement');
+    const box=await p.locator('.verse-row .source-text').nth(1).boundingBox();
+    await touch('touchStart',box.x+50,box.y+12);await pause(480);await touch('touchEnd');
+    await p.getByRole('region',{name:'选中文字操作'}).waitFor();
+    assert((await visibleText()).join('').includes('地是空虚混沌'),'Long press did not select verse');
+    assert(await p.evaluate(()=>window.getSelection().isCollapsed),'Native selection competes with custom selection');
+    assert(await p.locator('.selection-handle').count()===2,'Selection handles absent');
+    assert(await p.evaluate(()=>getComputedStyle(document.querySelector('.source-text')).userSelect==='none'),'System selection enabled');
+    checks.push('Real touch long press creates a single custom selection with two handles');
+    const handle=p.getByRole('button',{name:'调整选区起点'});
+    const h=await handle.boundingBox();
+    // Target inside the same verse after its first three glyphs.
+    const dest=await p.locator('.verse-row .source-text').nth(1).evaluate(el=>{
+      const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let node;while((node=w.nextNode())&&node.textContent.length<4){} const r=document.createRange();r.setStart(node,3);r.setEnd(node,4);const b=r.getBoundingClientRect();return{x:b.left+1,y:b.top+b.height/2};
+    });
+    await touch('touchStart',h.x+22,h.y+10);
+    for(let i=1;i<=5;i++)await touch('touchMove',h.x+22+(dest.x-h.x-22)*i/5,h.y+10+(dest.y-h.y-10)*i/5);
+    await touch('touchEnd');await pause(100);
+    const partial=(await visibleText()).join('');
+    assert(!partial.startsWith('地是空'),'Dragging start did not narrow selection: '+partial);
+    assert(await p.evaluate(()=>window.getSelection().isCollapsed),'Native range after dragging');
+    checks.push('Touch handle narrows exact characters without native range');
+    await tap('笔记');await p.getByRole('textbox',{name:'笔记内容'}).fill('精确拖动选字验收');await tap('保存');
+    await p.getByRole('region',{name:'选中文字操作'}).waitFor({state:'hidden'});
+    await tap('选择第1节');await tap('选择第3节');
+    assert((await visibleText()).join('').includes('地是空虚混沌'),'Cross verse selection failed');
+    await tap('划线');await tap('标注颜色 2');await tap('波浪线');
+    await p.screenshot({path:'output/playwright/debug-mark-options.png'});
+    await tap('应用');
+    await p.screenshot({path:'output/playwright/debug-mark-applied.png'});
+    await p.locator('.wavy').first().waitFor();
+    assert(await p.locator('.wavy').count()>0,'Mark not applied');
+    await tap('选择第3节');
+    await p.screenshot({path:'output/playwright/redesign-selection.png'});
+    assert(Math.abs(before.y-(await source.boundingBox()).y)<1,'Selection toolbar reflows reader');
+    assert(await p.locator('.selection-tools').evaluate(el=>el.getBoundingClientRect().height)<120,'Default toolbar too large');
+    await tap('取消选中');
+    checks.push('Cross-verse marks and precise note save work; compact toolbar preserves text position');
+    await tap('进入沉浸阅读');await p.keyboard.press('Escape');
+    assert(await p.getByRole('button',{name:'返回书架'}).isVisible(),'Escape failed to exit immersion first');
+    // A genuine touch swipe must scroll without selecting or toggling immersion.
+    await touch('touchStart',200,570);
+    for(let y=550;y>=260;y-=30){await touch('touchMove',200,y);await pause(16);}await touch('touchEnd');await pause(200);
+    assert(await p.locator('.selection-tools').count()===0,'Swipe created a selection');
+    assert(await p.getByRole('button',{name:'返回书架'}).isVisible(),'Swipe toggled immersion');
+    checks.push('Touch swipe does not select or enter immersion; Escape restores reader chrome');
+    await tap('选经');
+    await p.getByRole('dialog',{name:'选择经文'}).waitFor();
+    await p.screenshot({path:'output/playwright/redesign-books.png'});
+    await tap('新约 27 卷');await tap('帖撒罗尼迦前书');await tap('帖撒罗尼迦前书 第1章');
+    await p.getByRole('button',{name:'选择第1节',exact:true}).waitFor();
+    await tap('选经');await tap('旧约 39 卷');await tap('诗篇');
+    await p.getByRole('checkbox',{name:'精确到节',exact:true}).check();await tap('诗篇 第119章');
+    await p.keyboard.press('Escape');
+    assert(await p.getByRole('button',{name:'诗篇 第119章',exact:true}).isVisible(),'Back from verses did not restore chapters');
+    await p.keyboard.press('Escape');
+    await p.getByRole('dialog',{name:'选择经文'}).waitFor({state:'hidden'});
+    assert(await p.getByRole('button',{name:'选经',exact:true}).evaluate(el=>el===document.activeElement),'Navigator did not restore focus');
+    await tap('选经');
+    await p.getByRole('textbox',{name:'查找圣经书卷'}).fill('诗篇');await tap('诗篇');
+    await p.getByRole('checkbox',{name:'精确到节',exact:true}).check();await tap('诗篇 第119章');
+    await tap('诗篇 119章 第176节');
+    await p.getByRole('button',{name:'选择第176节',exact:true}).waitFor();
+    const verseTop=await p.getByRole('button',{name:'选择第176节',exact:true}).evaluate(e=>e.getBoundingClientRect().top);
+    const headerBottom=await p.locator('.reader-header').evaluate(e=>e.getBoundingClientRect().bottom);
+    assert(verseTop>=headerBottom,'Precise jump leaves target behind header');
+    checks.push('Book index supports long titles, book search, back with focus restoration, and Psalm 119:176');
+    for (const width of [320,390,768]) {
+      await p.setViewportSize({width,height:width===320?568:844});
+      await p.goto('http://localhost:5174/index.html?preview=chapters&theme=dark');
+      await p.getByRole('dialog',{name:'选择经文'}).waitFor();
+      const layout=await p.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,targets:[...document.querySelectorAll('.number-grid button')].map(e=>e.getBoundingClientRect().width)}));
+      assert(!layout.overflow&&Math.min(...layout.targets)>=44,'Navigator narrow layout: '+JSON.stringify(layout));
+      await p.screenshot({path:`output/playwright/redesign-books-${width}.png`});
+    }
+    checks.push('320 / 390 / 768 dark chapter panels keep number targets at least 44px');
+    assert(errors.length===0,errors.join('\n'));
+    return checks;
+  } finally {await context.close();}
+}

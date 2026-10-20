@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { App as NativeApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
-import { BookOpen, Bookmark, Check, ChevronDown, ChevronLeft, ChevronRight, Copy, Download, FileText, FolderOpen, Highlighter, List, LoaderCircle, Minus, Moon, Palette, PencilLine, Plus, Search, Share2, Settings2, Sun, Trash2, Type, Underline, Waves, X } from 'lucide-vue-next';
+import { BookOpen, Bookmark, Check, ChevronDown, ChevronLeft, ChevronRight, Copy, Download, FileText, FolderOpen, Highlighter, List, LoaderCircle, Maximize, Minimize, Minus, Moon, Palette, PencilLine, Plus, Search, Share2, Settings2, Sun, Trash2, Type, Underline, Waves, X } from 'lucide-vue-next';
 import ReaderView from './ReaderView.vue';
 import BibleNavigator from './BibleNavigator.vue';
 import { passageLabel } from './bible';
@@ -10,6 +10,7 @@ import { annotationColors, annotationJson, chapterAt, defaultSettings, notesMark
 import * as storage from './storage';
 import { copyText, exportText, importBook, shareText } from './platform';
 import { seedBuiltinBooks } from './builtin';
+import { setReadingMode } from './reading-mode';
 import { previewScene } from './preview-scenes';
 const previewParams = new URLSearchParams(location.search);
 const isPreview = previewParams.has('preview') && !Capacitor.isNativePlatform();
@@ -24,6 +25,8 @@ const currentId = ref<string|null>(null), panel = ref<'chapters'|'notes'|'appear
 const selection = ref<Selection|null>(null), draftSelection = ref<Selection|null>(null), draftNote = ref(''), editingNote = ref<Annotation|null>(null), showNote = ref(false);
 const pendingDelete = ref<Book|null>(null), pendingRemoveNote = ref<Annotation|null>(null);
 const showImport = ref(false);
+const immersive = ref(false), draggingSelection = ref(false), showMarkOptions = ref(false);
+const markType = ref<'marker'|'wavy'|'straight'>('marker');
 const colorIndex = ref(2), query = ref(''), libraryQuery = ref(''), chapterQuery = ref('');
 const selectedVolume = ref(''), target = ref({line:1,nonce:0});
 const fileInput = ref<HTMLInputElement>(), noteInput = ref<HTMLTextAreaElement>();
@@ -87,15 +90,19 @@ async function applyPreviewScene() {
   openBook(sample);
   await nextTick(); await nextTick();
   if (scene==='selection') selection.value={...sample.annotations[1]};
+  else if (scene==='immersive') immersive.value=true;
   else if (scene==='note-editor') startNote(sample.annotations[0]);
   else if (scene==='book-notes') openPanel('notes');
   else if (scene==='search') { query.value='光'; openPanel('search'); }
   else if (scene==='chapters'||scene==='keywords'||scene==='appearance') openPanel(scene);
 }
-function openBook(b:Book, line = b.line) { void flush(); currentId.value=b.id; b.lastOpened=Date.now(); b.line=line; target.value={line,nonce:Date.now()}; panel.value=null; selection.value=null; queueSave(b); }
-function goBack() { void flush(); currentId.value=null; panel.value=null; selection.value=null; window.getSelection()?.removeAllRanges(); }
+function openBook(b:Book, line = b.line) { void flush(); immersive.value=false; currentId.value=b.id; b.lastOpened=Date.now(); b.line=line; target.value={line,nonce:Date.now()}; panel.value=null; selection.value=null; queueSave(b); }
+function goBack() { void flush(); immersive.value=false; currentId.value=null; panel.value=null; selection.value=null; window.getSelection()?.removeAllRanges(); }
 function jump(line:number) { target.value={line,nonce:target.value.nonce+1}; panel.value=null; selection.value=null; }
 function clearSelection() { selection.value=null; window.getSelection()?.removeAllRanges(); }
+function toggleImmersive() { if (!selection.value && !modalOpen.value) immersive.value=!immersive.value; }
+watch(selection, (value, previous) => { if (!value || !previous) showMarkOptions.value=false; if (!value) draggingSelection.value=false; });
+watch(immersive, value => { void setReadingMode(value).catch(fail); });
 function adjacentChapter(offset:number) { const c=chapters.value[chapterIndex.value+offset]; if(c) jump(c.line); }
 async function useExcerpt(action:'copy'|'share') {
   if (!selection.value || !book.value) return;
@@ -185,17 +192,17 @@ watch([panel,showNote,showImport,pendingDelete,pendingRemoveNote,error], async (
   if(dialog && !dialog.contains(document.activeElement)) dialog.focus();
   if (!dialog && returnFocus?.isConnected) { returnFocus.focus({preventScroll:true}); returnFocus=null; }
 });
-function dismiss() { if(error.value) error.value=''; else if(showImport.value) showImport.value=false; else if(showNote.value) showNote.value=false; else if(pendingDelete.value) pendingDelete.value=null; else if(pendingRemoveNote.value) pendingRemoveNote.value=null; else if(panel.value==='chapters' && bibleNavigator.value?.back()) return; else if(panel.value) panel.value=null; else if(selection.value) clearSelection(); else if(book.value) goBack(); }
+function dismiss() { if(error.value) error.value=''; else if(showImport.value) showImport.value=false; else if(showNote.value) showNote.value=false; else if(pendingDelete.value) pendingDelete.value=null; else if(pendingRemoveNote.value) pendingRemoveNote.value=null; else if(panel.value==='chapters' && bibleNavigator.value?.back()) return; else if(panel.value) panel.value=null; else if(showMarkOptions.value) showMarkOptions.value=false; else if(selection.value) clearSelection(); else if(immersive.value) immersive.value=false; else if(book.value) goBack(); }
 function onHidden() { if(document.hidden) void flush(); }
 let removeNative: (()=>void)|undefined;
 onMounted(() => { void initialize(); window.addEventListener('keydown',onKey); document.addEventListener('visibilitychange',onHidden); window.addEventListener('pagehide',flush);
   if(Capacitor.isNativePlatform()) { void NativeApp.addListener('backButton',({canGoBack}) => { if(book.value || panel.value || showNote.value || showImport.value || error.value || pendingDelete.value || pendingRemoveNote.value) dismiss(); else if(canGoBack) window.history.back(); else void NativeApp.minimizeApp(); }).then(h => removeNative=()=>{void h.remove();}); }
 });
-onBeforeUnmount(() => { void flush(); clearTimeout(noticeTimer); window.removeEventListener('keydown',onKey); document.removeEventListener('visibilitychange',onHidden); window.removeEventListener('pagehide',flush); removeNative?.(); });
+onBeforeUnmount(() => { void flush(); void setReadingMode(false).catch(fail); clearTimeout(noticeTimer); window.removeEventListener('keydown',onKey); document.removeEventListener('visibilitychange',onHidden); window.removeEventListener('pagehide',flush); removeNative?.(); });
 </script>
 
 <template>
-  <main class="app-shell" :class="{ 'reading': !!book }">
+  <main class="app-shell" :class="{ 'reading': !!book, immersive, 'selecting':!!selection }">
     <div class="app-content" :inert="modalOpen">
     <input ref="fileInput" class="visually-hidden" type="file" accept=".txt,.md,.ctz" multiple @change="pickFiles" />
     <div v-if="!ready" class="startup"><BookOpen :size="40"/><h1>彩读</h1><p>{{busy?'正在准备离线书库…':'书库暂时无法打开'}}</p><button v-if="!busy" class="primary" @click="initialize">重试</button></div>
@@ -223,15 +230,23 @@ onBeforeUnmount(() => { void flush(); clearTimeout(noticeTimer); window.removeEv
       <nav class="bottom-nav" aria-label="主导航"><button :class="{active:tab==='books'}" @click="tab='books'"><BookOpen :size="23"/>书架</button><button :class="{active:tab==='notes'}" @click="tab='notes'"><PencilLine :size="23"/>笔记</button><button :class="{active:tab==='settings'}" @click="tab='settings'"><Settings2 :size="23"/>设置</button></nav>
     </template>
     <template v-else>
-      <header class="reader-header"><button class="icon-button" aria-label="返回书架" @click="goBack"><ChevronLeft/></button><button class="passage-trigger" :aria-label="isBible ? '选择书卷和章节' : '选择章节'" aria-haspopup="dialog" @click="openPanel('chapters')"><strong><span>{{isBible ? currentChapter?.book + ' ' + currentChapter?.chapter + '章' : book.title}}</span><ChevronDown :size="16"/></strong><small>{{isBible ? '圣经 · 离线阅读' : currentChapter?.title}}</small></button><button class="icon-button" aria-label="搜索正文" @click="openPanel('search')"><Search :size="21"/></button><button class="icon-button" aria-label="添加或移除当前位置书签" :class="{active:book.bookmarks.includes(book.line)}" @click="toggleBookmark"><Bookmark :size="21"/></button></header>
-      <ReaderView :key="book.id" :book="book" :settings="settings" :target="target" :selection="selection" @progress="onProgress" @select="selection=$event" @inspect="startNote"/>
+      <header v-show="!immersive" class="reader-header"><button class="icon-button" aria-label="返回书架" @click="goBack"><ChevronLeft/></button><button class="passage-trigger" :aria-label="isBible ? '选择书卷和章节' : '选择章节'" aria-haspopup="dialog" @click="openPanel('chapters')"><strong><span>{{isBible ? currentChapter?.book + ' ' + currentChapter?.chapter + '章' : book.title}}</span><ChevronDown :size="16"/></strong><small>{{isBible ? '圣经 · 离线阅读' : currentChapter?.title}}</small></button><button class="icon-button" aria-label="搜索正文" @click="openPanel('search')"><Search :size="21"/></button><button class="icon-button" aria-label="添加或移除当前位置书签" :class="{active:book.bookmarks.includes(book.line)}" @click="toggleBookmark"><Bookmark :size="21"/></button></header>
+      <ReaderView :key="book.id" :book="book" :settings="settings" :target="target" :selection="selection" :immersive="immersive" @progress="onProgress" @select="selection=$event" @inspect="startNote" @immerse="toggleImmersive" @dragging="draggingSelection=$event"/>
+      <button v-if="immersive && !selection" class="immersive-exit icon-button" aria-label="退出沉浸阅读" @click="immersive=false"><Minimize :size="18"/></button>
+      <div v-if="immersive && !selection" class="immersive-status" aria-hidden="true"><span>{{currentChapter?.title}}</span><span>{{progress}}%</span></div>
+      <div v-show="!immersive && !selection" class="reader-bottom">
       <div class="reading-status"><span>{{progress}}%</span><span>{{isBible ? currentChapter?.title : book.annotations.length + ' 条标注'}}</span><span>{{chapterIndex+1}} / {{chapters.length}} 章</span></div>
       <div v-if="isBible && !selection" class="chapter-switch"><button :disabled="chapterIndex===0" @click="adjacentChapter(-1)"><ChevronLeft :size="18"/>上一章</button><button @click="openPanel('chapters')">{{currentChapter?.book}} {{currentChapter?.chapter}}<ChevronDown :size="15"/></button><button :disabled="chapterIndex===chapters.length-1" @click="adjacentChapter(1)">下一章<ChevronRight :size="18"/></button></div>
-      <footer v-if="!selection" class="reader-tools" aria-label="阅读工具"><button @click="openPanel('chapters')"><List/>{{isBible ? '选经' : '目录'}}</button><button @click="openPanel('notes')"><PencilLine/>笔记<span v-if="book.annotations.length" class="tool-count">{{book.annotations.length}}</span></button><button @click="openPanel('keywords')"><Highlighter/>高亮词</button><button @click="openPanel('appearance')"><Type/>排版</button><button :aria-label="settings.theme==='dark'?'切换纸色':'切换深色'" @click="settings.theme=settings.theme==='dark'?'paper':'dark'"><Sun v-if="settings.theme==='dark'"/><Moon v-else/>{{settings.theme==='dark'?'日间':'夜间'}}</button></footer>
-      <div v-if="selection" class="selection-tools" role="region" aria-label="选中文字操作" @mousedown.prevent>
-        <div class="selection-heading"><div><strong>{{selectedReference || '已选文字'}}</strong><small>{{selection.text.length}} 字<span v-if="isBible"> · 再点另一个节号可连选</span></small></div><button class="small-icon" aria-label="取消选中" @click="clearSelection"><X :size="20"/></button></div>
-        <div class="color-options"><button v-for="(color,i) in annotationColors" :key="color" :style="{'--swatch':color}" :class="{selected:colorIndex===i}" :aria-label="'标注颜色 '+(i+1)" :aria-pressed="colorIndex===i" @click="colorIndex=i"><Check v-if="colorIndex===i" :size="19"/></button></div>
-        <div class="excerpt-actions"><button @click="useExcerpt('copy')"><Copy :size="19"/>复制</button><button @click="useExcerpt('share')"><Share2 :size="19"/>分享</button><button @click="startNote()"><PencilLine :size="19"/>笔记</button></div><div class="selection-actions"><button @click="annotate('marker')"><Highlighter :size="20"/>马克笔</button><button @click="annotate('wavy')"><Waves :size="20"/>波浪线</button><button @click="annotate('straight')"><Underline :size="20"/>直线</button><button @click="addKeyword"><Palette :size="20"/>高亮词</button></div>
+      <footer class="reader-tools" aria-label="阅读工具"><button @click="openPanel('chapters')"><List/>{{isBible ? '选经' : '目录'}}</button><button @click="openPanel('notes')"><PencilLine/>笔记<span v-if="book.annotations.length" class="tool-count">{{book.annotations.length}}</span></button><button @click="openPanel('keywords')"><Highlighter/>高亮词</button><button @click="openPanel('appearance')"><Type/>排版</button><button aria-label="进入沉浸阅读" @click="toggleImmersive"><Maximize/>沉浸</button></footer>
+      </div>
+      <div v-if="selection" class="selection-tools" :class="{'is-dragging':draggingSelection}" role="region" aria-label="选中文字操作">
+        <div class="selection-heading"><div><strong>{{selectedReference || '已选文字'}}</strong><small>{{selection.text.length}} 字 · 拖动手柄调整范围</small></div><button class="small-icon" aria-label="取消选中" @click="clearSelection"><X :size="20"/></button></div>
+        <div v-if="showMarkOptions" id="mark-options" class="mark-options">
+          <div class="color-options" aria-label="标注颜色"><button v-for="(color,i) in annotationColors" :key="color" :style="{'--swatch':color}" :class="{selected:colorIndex===i}" :aria-label="'标注颜色 '+(i+1)" :aria-pressed="colorIndex===i" @click="colorIndex=i"><Check v-if="colorIndex===i" :size="19"/></button></div>
+          <div class="mark-types"><button v-for="item in ([{type:'marker',label:'底色',icon:Highlighter},{type:'straight',label:'直线',icon:Underline},{type:'wavy',label:'波浪线',icon:Waves}] as const)" :key="item.type" :aria-pressed="markType===item.type" :class="{active:markType===item.type}" @click="markType=item.type"><component :is="item.icon" :size="17"/>{{item.label}}</button><button class="apply-mark" @click="annotate(markType)"><Check :size="17"/>应用</button></div>
+          <button class="keyword-action" @click="addKeyword"><Palette :size="16"/>设为全书高亮词<ChevronRight :size="15"/></button>
+        </div>
+        <div class="excerpt-actions"><button @click="useExcerpt('copy')"><Copy :size="20"/>复制</button><button @click="startNote()"><PencilLine :size="20"/>笔记</button><button :aria-expanded="showMarkOptions" aria-controls="mark-options" :class="{active:showMarkOptions}" @click="showMarkOptions=!showMarkOptions"><Highlighter :size="20"/>划线<ChevronDown :size="12"/></button><button @click="useExcerpt('share')"><Share2 :size="20"/>分享</button></div>
       </div>
     </template>
 

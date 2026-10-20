@@ -10,7 +10,7 @@ export async function copyText(text: string) {
   field.value = text; field.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
   document.body.append(field); field.select();
   const copied = document.execCommand('copy'); field.remove();
-  if (!copied) throw new Error('无法访问剪贴板，请长按正文使用系统复制。');
+  if (!copied) throw new Error('无法访问剪贴板，请尝试通过「分享」导出摘录。');
 }
 export async function shareText(title: string, text: string) {
   if (Capacitor.isNativePlatform()) { await Share.share({ title, text, dialogTitle: '分享经文与摘录' }); return 'shared'; }
