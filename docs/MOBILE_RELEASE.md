@@ -1,12 +1,12 @@
 # 移动端构建与发布
 
-版本：v1.0.1。应用标识：`io.colortxt.mobile`。Android versionCode 与 iOS build number：`10001`。
+版本：v1.0.2。应用标识：`io.colortxt.mobile`。Android versionCode 与 iOS build number：`10002`。
 
 ## 自动构建
 
 推送 `v*` 标签会执行 [Release 工作流](../.github/workflows/release.yml)，同时构建 Windows x64、macOS arm64/x64、Linux arm64/x64、Android release APK 和 iOS 真机未签名 IPA。全部构建成功后发布对应版本，并附带中文更新说明和 SHA-256 校验值。
 
-手动重建：在仓库 Actions → Release → Run workflow 中填写已有标签（例如 `v1.0.1`）。工作流按该标签检出源码，产物上传到对应 Release。部分任务失败可使用 Re-run failed jobs；修复源码时使用新的提交与版本标签，避免静默替换已发布的源码标签。
+手动重建：在仓库 Actions → Release → Run workflow 中填写已有标签（例如 `v1.0.2`）。工作流按该标签检出源码，产物上传到对应 Release。部分任务失败可使用 Re-run failed jobs；修复源码时使用新的提交与版本标签，避免静默替换已发布的源码标签。
 
 如果七个平台构建全部成功、仅发布步骤失败，可以填写原运行编号 `artifact_run_id`，复用已有安装包并重试发布；该编号应与填写的版本标签对应。流程会检查七个构建均成功，并再次核验全部安装包文件名。Linux x64 的 AppImage 使用 electron-builder 的 `x86_64` 文件名。
 
@@ -27,7 +27,7 @@
 
 ## iOS 未签名 IPA
 
-按本分支发布方式，GitHub macOS runner 使用 `iphoneos` SDK、`Release` 配置与 `generic/platform=iOS` 目标创建关闭代码签名的 archive，然后将 `App.app` 放入 `Payload/` 压缩为 `colortxt-1.0.1-ios-unsigned.ipa`。构建会校验版本与 arm64 架构，不需要配置 Apple Secrets。
+按本分支发布方式，GitHub macOS runner 使用 `iphoneos` SDK、`Release` 配置与 `generic/platform=iOS` 目标创建关闭代码签名的 archive，然后将 `App.app` 放入 `Payload/` 压缩为 `colortxt-1.0.2-ios-unsigned.ipa`。构建会校验版本与 arm64 架构，不需要配置 Apple Secrets。
 
 这个 IPA 需要你使用自己的工具和 Apple 证书重新签名，再通过所选签名方式安装。若使用 Ad Hoc 描述文件，必须包含目标设备的 UDID；企业分发须符合证书适用范围。App Store 描述文件对应 TestFlight/App Store 分发，不能当作普通 IPA 直接安装。重新签名时如修改 Bundle ID，应同步处理签名权限与描述文件。
 
@@ -42,7 +42,7 @@ xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
   CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' archive
 mkdir -p output/ios/Payload
 cp -R ios/build/ColorTxt.xcarchive/Products/Applications/App.app output/ios/Payload/
-(cd output/ios && zip -qry ../colortxt-1.0.1-ios-unsigned.ipa Payload)
+(cd output/ios && zip -qry ../colortxt-1.0.2-ios-unsigned.ipa Payload)
 ```
 
 ## 页面预览与功能范围

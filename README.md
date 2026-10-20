@@ -1,6 +1,6 @@
 <h1>
   <p align="center">
-    <img src="./resources/icon.png" width="32"> 彩读｜ColorTxt v1.0.1 <span style="color: orange">书源</span> × <span style="color: orange">AI+</span>
+    <img src="./resources/icon.png" width="32"> 彩读｜ColorTxt v1.0.2 <span style="color: orange">书源</span> × <span style="color: orange">AI+</span>
   </p>
 </h1>
 
@@ -29,17 +29,17 @@
 
 ## 下载
 
-本仓库为 [iszkq/ColorTxt](https://github.com/iszkq/ColorTxt)，基于 [ssnangua/ColorTxt](https://github.com/ssnangua/ColorTxt) 继续开发，版本统一为 **v1.0.1**。保留桌面彩读，新增 iOS / Android 移动端。
+本仓库为 [iszkq/ColorTxt](https://github.com/iszkq/ColorTxt)，基于 [ssnangua/ColorTxt](https://github.com/ssnangua/ColorTxt) 继续开发，当前版本为 **v1.0.2**。保留桌面彩读，并持续完善 iOS / Android 移动端。
 
-前往 [v1.0.1 Release](https://github.com/iszkq/ColorTxt/releases/tag/v1.0.1) 查看安装包、中文更新说明及 SHA-256 校验文件。
+前往 [v1.0.2 Release](https://github.com/iszkq/ColorTxt/releases/tag/v1.0.2) 查看安装包、中文更新说明及 SHA-256 校验文件。
 
 | 平台 | 下载 |
 | --- | --- |
-| Windows x64 | [安装版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-Setup.exe) / [便携版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-Portable.exe) |
-| macOS | [Apple Silicon](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-arm64.dmg) / [Intel x64](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-x64.dmg) |
-| Linux | [arm64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-arm64.AppImage) / [x64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-x86_64.AppImage) |
-| Android 7.0+ | [已签名 APK](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-android.apk) |
-| iOS / iPadOS 15.0+ | [真机 arm64 未签名 IPA](https://github.com/iszkq/ColorTxt/releases/download/v1.0.1/colortxt-1.0.1-ios-unsigned.ipa)，需自行签名后安装 |
+| Windows x64 | [安装版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-Setup.exe) / [便携版](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-Portable.exe) |
+| macOS | [Apple Silicon](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-arm64.dmg) / [Intel x64](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-x64.dmg) |
+| Linux | [arm64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-arm64.AppImage) / [x64 AppImage](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-x86_64.AppImage) |
+| Android 7.0+ | [已签名 APK](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-android.apk) |
+| iOS / iPadOS 15.0+ | [真机 arm64 未签名 IPA](https://github.com/iszkq/ColorTxt/releases/download/v1.0.2/colortxt-1.0.2-ios-unsigned.ipa)，需自行签名后安装 |
 
 ### 移动端与页面预览
 
@@ -51,7 +51,7 @@
 
 Windows、macOS、Linux、Android、iOS 与移动网页端均预装用户提供的《圣经》（Bible1.csv）：66 卷、1,189 章、31,102 节，可离线阅读。首次启动加入书库，升级不覆盖已有正文、进度和笔记。来源文件的 SHA-256 和数量记录见 [provenance.json](./resources/builtin/provenance.json)。各设备数据独立保存，重要笔记请定期导出备份。
 
-更多说明：[移动端文档](./mobile/README.md) · [构建与自行签名](./docs/MOBILE_RELEASE.md) · [v1.0.1 中文更新说明](./docs/releases/v1.0.1.md)。
+更多说明：[移动端文档](./mobile/README.md) · [构建与自行签名](./docs/MOBILE_RELEASE.md) · [v1.0.2 中文更新说明](./docs/releases/v1.0.2.md)。
 
 ## 功能特性（桌面端）
 

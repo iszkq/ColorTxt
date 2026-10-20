@@ -21,3 +21,60 @@
 @keyframes sheet-in{from{transform:translateY(20px);opacity:.6}to{transform:translateY(0);opacity:1}}
 @media(min-width:600px){.home-content{padding:var(--space-6)}.home-header{padding-left:var(--space-6);padding-right:var(--space-6)}.book-cover{width:104px;height:145px}.reader-article{padding:var(--space-6) 48px}.sheet{max-height:80dvh}.selection-tools{max-width:440px;left:50%;right:auto;width:calc(100% - 24px);transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Bible navigation and selection reuse the reader's theme and touch metrics. */
+.app-content{display:contents}
+.sheet:focus,.confirm-dialog:focus{outline:none}
+.search-field input{font-size:16px}
+.passage-trigger{flex:1;min-width:0;min-height:var(--touch);padding:0 var(--space-2);text-align:left}
+.passage-trigger strong{display:flex;align-items:center;gap:var(--space-2);font-size:17px}
+.passage-trigger strong span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.passage-trigger strong svg{flex-shrink:0}
+.passage-trigger small{font-size:11px}
+.chapter-switch{display:flex;align-items:center;justify-content:space-between;padding:0 var(--space-3);border-top:1px solid var(--line);flex-shrink:0}
+.chapter-switch button{min-height:var(--touch);display:flex;align-items:center;justify-content:center;gap:var(--space-1);font-size:12px;padding:0 var(--space-2)}
+.chapter-switch button:nth-child(2){color:var(--muted)}
+.bible-sheet{height:87dvh}
+.bible-navigator{display:flex;flex-direction:column;min-height:0;flex:1;padding:0 var(--space-5)}
+.current-passage{display:flex;align-items:center;gap:var(--space-2);text-align:left;min-height:56px;color:var(--accent);border-bottom:1px solid var(--line);font-size:12px;flex-shrink:0}
+.current-passage span:last-child{margin-left:auto;font-size:11px;color:var(--muted)}
+.passage-path{display:flex;align-items:center;min-height:64px;gap:var(--space-2);flex-shrink:0}
+.passage-path h3{flex:1;font-size:18px;outline:none}
+.passage-path>small{color:var(--muted);font-size:12px}
+.passage-path>.small-icon{margin-left:calc(-1 * var(--space-2))}
+.testament-tabs{display:flex;border-bottom:1px solid var(--line);margin:var(--space-3) 0;flex-shrink:0}
+.testament-tabs button{flex:1;min-height:var(--touch);border-bottom:2px solid transparent;font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--space-2)}
+.testament-tabs small{font-size:11px;color:var(--muted);font-weight:400}
+.testament-tabs .active{color:var(--accent);border-color:var(--accent)}
+.passage-grid-scroll{overflow:auto;overscroll-behavior:contain;flex:1;min-height:0;padding:var(--space-1);margin:0 calc(-1 * var(--space-1))}
+.book-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2)}
+.book-grid button{min-height:var(--touch);display:flex;align-items:center;justify-content:space-between;text-align:left;border-radius:var(--radius-small);background:var(--surface-subtle);font-size:13px;padding:var(--space-2);gap:var(--space-1);overflow-wrap:anywhere}
+.book-grid svg{color:var(--muted);width:12px}
+.book-grid .active,.number-grid .active{background:var(--accent-soft);color:var(--accent);outline:1px solid var(--accent);outline-offset:-1px;font-weight:650}
+.number-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-2)}
+.number-grid button{min-height:var(--touch);border-radius:var(--radius-small);background:var(--surface-subtle);font-size:17px;font-variant-numeric:tabular-nums}
+.verse-option{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding-bottom:var(--space-4);font-size:14px;flex-shrink:0}
+.verse-option small{display:block;color:var(--muted);font-size:11px;margin-top:var(--space-1)}
+.verse-option input{width:24px;height:24px;accent-color:var(--accent)}
+.passage-footer{min-height:56px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);border-top:1px solid var(--line);margin-top:var(--space-3);flex-shrink:0}
+.bible-reader .chapter-caption{margin-bottom:var(--space-5)}
+.bible-chapter-title{font-size:1.35em;font-weight:550;color:var(--reading-text);letter-spacing:.04em;margin-bottom:var(--space-2)}
+.bible-chapter-title span{font-size:.65em;letter-spacing:0;font-weight:400}
+.reader-article .verse-hint{font:11px/1.6 var(--ui-font);color:var(--muted);margin-bottom:var(--space-5);user-select:none}
+.reader-article .verse-row{position:relative;margin:0 calc(-1 * var(--space-2));padding:var(--space-2) var(--space-2) var(--space-2) 36px;border-radius:var(--radius-small);text-align:start;white-space:normal;transition:background 120ms ease}
+.verse-number{position:absolute;left:-6px;top:var(--space-2);width:44px;min-height:44px;padding:0 12px 0 0;display:flex;align-items:flex-start;justify-content:center;font:12px/var(--reading-leading) var(--ui-font);line-height:calc(var(--reading-size) * var(--reading-leading));color:var(--accent);user-select:none;-webkit-user-select:none}
+.source-text{white-space:pre-wrap}
+.verse-selected{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.selection-tools{position:relative;inset:auto;flex-shrink:0;width:100%;max-width:none;transform:none;border-radius:var(--radius-sheet) var(--radius-sheet) 0 0;border-width:1px 0 0;box-shadow:0 -4px 20px #0000000a;padding:var(--space-2) var(--space-3) calc(var(--safe-bottom) + var(--space-2));z-index:15}
+.selection-heading{display:flex;align-items:center;justify-content:space-between;padding-left:var(--space-2);gap:var(--space-2)}
+.selection-heading strong{display:block;font-size:14px;font-weight:600}
+.selection-heading small{display:block;font-size:10px;color:var(--muted)}
+.color-options{padding:0;border-bottom:0}
+.excerpt-actions{display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.excerpt-actions button{min-height:var(--touch);flex:1;display:flex;align-items:center;justify-content:center;gap:var(--space-2);font-size:13px}
+.excerpt-actions button:last-child{color:var(--accent)}
+.selection-actions{padding-top:var(--space-1)}
+.selection-actions button{min-height:44px}
+.selection-actions button:nth-child(4){color:inherit}
+@media(max-width:359px){.bible-navigator{padding:0 var(--space-4)}.book-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-article{padding-left:var(--space-4);padding-right:var(--space-4)}.selection-heading small span{display:none}}
+@media(max-height:620px){.selection-actions button{flex-direction:row;gap:var(--space-1)}.selection-heading{min-height:44px}.selection-heading small{display:none}}

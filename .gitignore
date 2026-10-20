@@ -17,3 +17,7 @@ tmp-*.mjs
 tmp-*.wav
 tmp-*.spx
 tmp-*.png
+
+# Local browser verification artifacts and reference downloads.
+/.playwright-cli/
+/output/

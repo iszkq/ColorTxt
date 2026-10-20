@@ -4,6 +4,20 @@ import { Share } from '@capacitor/share';
 import JSZip from 'jszip';
 import { createBook, decodeText, validAnnotations, type Book } from './core';
 
+export async function copyText(text: string) {
+  if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(text); return; }
+  const field = document.createElement('textarea');
+  field.value = text; field.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+  document.body.append(field); field.select();
+  const copied = document.execCommand('copy'); field.remove();
+  if (!copied) throw new Error('无法访问剪贴板，请长按正文使用系统复制。');
+}
+export async function shareText(title: string, text: string) {
+  if (Capacitor.isNativePlatform()) { await Share.share({ title, text, dialogTitle: '分享经文与摘录' }); return 'shared'; }
+  if (navigator.share) { await navigator.share({ title, text }); return 'shared'; }
+  await copyText(text); return 'copied';
+}
+
 export async function importBook(file: File): Promise<Book> {
   if (file.size > 25 * 1024 * 1024) throw new Error('首版支持 25 MB 以内的文件。');
   if (/\.(txt|md)$/i.test(file.name)) {
