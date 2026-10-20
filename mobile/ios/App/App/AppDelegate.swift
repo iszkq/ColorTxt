@@ -1,38 +1,6 @@
 import UIKit
 import Capacitor
 
-@objc(ReadingViewController)
-class ReadingViewController: CAPBridgeViewController {
-    var immersiveReading = false
-
-    override func capacitorDidLoad() {
-        bridge?.registerPluginInstance(ReadingModePlugin())
-    }
-
-    override var prefersHomeIndicatorAutoHidden: Bool { immersiveReading }
-}
-
-@objc(ReadingModePlugin)
-class ReadingModePlugin: CAPPlugin, CAPBridgedPlugin {
-    let identifier = "ReadingModePlugin"
-    let jsName = "ReadingMode"
-    let pluginMethods: [CAPPluginMethod] = [CAPPluginMethod(name: "setImmersive", returnType: CAPPluginReturnPromise)]
-
-    @objc func setImmersive(_ call: CAPPluginCall) {
-        let enabled = call.getBool("enabled") ?? false
-        DispatchQueue.main.async {
-            guard let reader = self.bridge?.viewController as? ReadingViewController else {
-                call.reject("无法切换沉浸阅读")
-                return
-            }
-            reader.immersiveReading = enabled
-            reader.setStatusBarVisible(!enabled)
-            reader.setNeedsUpdateOfHomeIndicatorAutoHidden()
-            call.resolve()
-        }
-    }
-}
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
