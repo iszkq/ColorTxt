@@ -7,6 +7,7 @@ import ReaderView from './ReaderView.vue';
 import BibleNavigator from './BibleNavigator.vue';
 import { passageLabel } from './bible';
 import { annotationColors, annotationJson, chapterAt, defaultSettings, notesMarkdown, validAnnotations, wordColors, type Annotation, type Book, type Settings } from './core';
+import { lineationsForRange, updateLineation } from './reader-annotations';
 import * as storage from './storage';
 import { copyText, exportText, importBook, shareText } from './platform';
 import { seedBuiltinBooks } from './builtin';
@@ -41,6 +42,8 @@ const visibleChapters = computed(() => chapters.value.filter(c => (!selectedVolu
 const currentChapter = computed(() => book.value ? chapters.value[chapterAt(chapters.value,book.value.line)] : undefined);
 const isBible = computed(() => volumes.value.length > 0);
 const selectedReference = computed(() => selection.value ? passageLabel(currentLines.value,chapters.value,selection.value) : '');
+const selectedLineations = computed(() => selection.value && book.value ? lineationsForRange(book.value.annotations,selection.value) : []);
+const selectedLineation = computed(() => selectedLineations.value[0]?.lineation);
 const chapterIndex = computed(() => book.value ? chapterAt(chapters.value,book.value.line) : 0);
 const progress = computed(() => book.value ? Math.round((book.value.line-1)/Math.max(1,currentLines.value.length-1)*100) : 0);
 const searchResults = computed(() => {
@@ -101,7 +104,11 @@ function goBack() { void flush(); immersive.value=false; currentId.value=null; p
 function jump(line:number) { target.value={line,nonce:target.value.nonce+1}; panel.value=null; selection.value=null; }
 function clearSelection() { selection.value=null; window.getSelection()?.removeAllRanges(); }
 function toggleImmersive() { if (!selection.value && !modalOpen.value) immersive.value=!immersive.value; }
-watch(selection, (value, previous) => { if (!value || !previous) showMarkOptions.value=false; if (!value) draggingSelection.value=false; });
+watch(selection, value => {
+  if (!value) { showMarkOptions.value=false; draggingSelection.value=false; return; }
+  const existing = book.value && lineationsForRange(book.value.annotations,value)[0]?.lineation;
+  if (existing) { markType.value=existing.type; colorIndex.value=existing.colorIndex; }
+});
 watch(immersive, value => { void setReadingMode(value).catch(fail); });
 function adjacentChapter(offset:number) { const c=chapters.value[chapterIndex.value+offset]; if(c) jump(c.line); }
 async function useExcerpt(action:'copy'|'share') {
@@ -120,11 +127,17 @@ async function pickFiles(event:Event) {
   catch(e) { fail(e); } finally { input.value=''; busy.value=false; }
 }
 function onProgress(line:number) { if(book.value) { book.value.line=line; queueSave(); } }
-function annotate(type: 'marker'|'wavy'|'straight') {
+function applyLineation(type: 'marker'|'wavy'|'straight', color: number, toggleSameType = false, colorOnly = false) {
   if (!book.value || !selection.value) return;
-  const now=Date.now(); book.value.annotations.push({ ...selection.value,id:crypto.randomUUID(),lineation:{type,colorIndex:colorIndex.value},createdAt:now,updatedAt:now });
-  selection.value=null; window.getSelection()?.removeAllRanges(); queueSave(); toast('已添加标注');
+  const existing=selectedLineations.value;
+  const remove=toggleSameType && existing.length>0 && existing.every(annotation => annotation.lineation?.type===type);
+  book.value.annotations=updateLineation(book.value.annotations,selection.value,remove?null:{type,colorIndex:color},Date.now());
+  queueSave();
+  toast(remove?'已取消划线':colorOnly?'已更新划线颜色':existing.length?(existing.every(annotation => annotation.lineation?.type===type)?'已更新划线':'已更换划线样式'):'已添加划线');
 }
+function annotate(type: 'marker'|'wavy'|'straight') { markType.value=type; applyLineation(type,colorIndex.value,true); }
+function chooseMarkColor(index: number) { colorIndex.value=index; if(selectedLineation.value) applyLineation(markType.value,index,false,true); }
+function removeLineation() { if(selection.value) applyLineation(markType.value,colorIndex.value,false); }
 function startNote(existing?:Annotation) {
   editingNote.value=existing ?? null; draftSelection.value=existing ?? selection.value;
   if (!draftSelection.value) return;
@@ -242,8 +255,8 @@ onBeforeUnmount(() => { void flush(); void setReadingMode(false).catch(fail); cl
       <div v-if="selection" class="selection-tools" :class="{'is-dragging':draggingSelection}" role="region" aria-label="选中文字操作">
         <div class="selection-heading"><div><strong>{{selectedReference || '已选文字'}}</strong><small>{{selection.text.length}} 字 · 拖动手柄调整范围</small></div><button class="small-icon" aria-label="取消选中" @click="clearSelection"><X :size="20"/></button></div>
         <div v-if="showMarkOptions" id="mark-options" class="mark-options">
-          <div class="color-options" aria-label="标注颜色"><button v-for="(color,i) in annotationColors" :key="color" :style="{'--swatch':color}" :class="{selected:colorIndex===i}" :aria-label="'标注颜色 '+(i+1)" :aria-pressed="colorIndex===i" @click="colorIndex=i"><Check v-if="colorIndex===i" :size="19"/></button></div>
-          <div class="mark-types"><button v-for="item in ([{type:'marker',label:'底色',icon:Highlighter},{type:'straight',label:'直线',icon:Underline},{type:'wavy',label:'波浪线',icon:Waves}] as const)" :key="item.type" :aria-pressed="markType===item.type" :class="{active:markType===item.type}" @click="markType=item.type"><component :is="item.icon" :size="17"/>{{item.label}}</button><button class="apply-mark" @click="annotate(markType)"><Check :size="17"/>应用</button></div>
+          <div class="color-options" aria-label="标注颜色"><button v-for="(color,i) in annotationColors" :key="color" :style="{'--swatch':color}" :class="{selected:colorIndex===i}" :aria-label="'标注颜色 '+(i+1)" :aria-pressed="colorIndex===i" @click="chooseMarkColor(i)"><Check v-if="colorIndex===i" :size="19"/></button></div>
+          <div class="mark-types"><button v-for="item in ([{type:'marker',label:'底色',icon:Highlighter},{type:'straight',label:'直线',icon:Underline},{type:'wavy',label:'波浪线',icon:Waves}] as const)" :key="item.type" :aria-pressed="selectedLineation?.type===item.type" :class="{active:selectedLineation?.type===item.type}" @click="annotate(item.type)"><component :is="item.icon" :size="17"/>{{item.label}}</button><button v-if="selectedLineations.length" class="remove-mark" aria-label="取消划线" @click="removeLineation"><X :size="17"/>取消</button></div>
           <button class="keyword-action" @click="addKeyword"><Palette :size="16"/>设为全书高亮词<ChevronRight :size="15"/></button>
         </div>
         <div class="excerpt-actions"><button @click="useExcerpt('copy')"><Copy :size="20"/>复制</button><button @click="startNote()"><PencilLine :size="20"/>笔记</button><button :aria-expanded="showMarkOptions" aria-controls="mark-options" :class="{active:showMarkOptions}" @click="showMarkOptions=!showMarkOptions"><Highlighter :size="20"/>划线<ChevronDown :size="12"/></button><button @click="useExcerpt('share')"><Share2 :size="20"/>分享</button></div>

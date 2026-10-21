@@ -7,7 +7,7 @@ export const previewScenes = [
   { id: 'import', group: '阅读工具', title: '导入书籍', icon: 'import', description: '从设备中选择书籍，支持 TXT、Markdown 和未加密彩读书包。', actions: ['查看支持的文件类型', '选择文件体验导入'] },
   { id: 'chapters', group: '阅读工具', title: '选择经文', icon: 'chapters', description: '左侧按类别浏览书卷，右侧选章或节，切换时保留所在书卷。', actions: ['切换旧约 / 新约或搜索书卷', '左侧选书卷，右侧点章数阅读', '开启“精确到节”定位经文'] },
   { id: 'search', group: '阅读工具', title: '全文搜索', icon: 'search', description: '示例已输入“光”，展示全文匹配与段落上下文。', actions: ['修改搜索关键词', '点击结果回到原文'] },
-  { id: 'selection', group: '阅读工具', title: '经文选取与标注', icon: 'selection', description: '拖动首尾手柄精确选字，底部操作栏保留经文出处，展开划线后选择颜色与线型。', actions: ['拖动手柄跨节选取，靠近边缘自动滚动', '复制、分享或点击笔记写下想法', '展开划线选择五色标记、直线或波浪线'] },
+  { id: 'selection', group: '阅读工具', title: '经文选取与标注', icon: 'selection', description: '拖动首尾手柄精确选字，底部操作栏保留经文出处，点选颜色与线型即可即时标注。', actions: ['拖动手柄跨节选取，靠近边缘自动滚动', '复制、分享或点击笔记写下想法', '点选底色、直线或波浪线即时应用，也可取消或替换'] },
   { id: 'book-notes', group: '阅读工具', title: '本书笔记与书签', icon: 'notes', description: '在阅读中查看本书标注、编辑想法和管理书签。', actions: ['点击书签跳转', '编辑或删除标注', '导出 Markdown 或 JSON'] },
   { id: 'note-editor', group: '阅读工具', title: '编辑笔记', icon: 'edit', description: '保留原文摘录，用一个专注的编辑面板记录思考。', actions: ['编辑示例笔记', '保存后在本书笔记中查看'] },
   { id: 'keywords', group: '阅读工具', title: '全书高亮词', icon: 'keywords', description: '让全书中的同一词语保持相同颜色，帮助追踪与查找。', actions: ['查看已配置的关键词', '移除关键词上色'] },

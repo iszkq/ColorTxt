@@ -3,11 +3,13 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { annotationColors, chapterAt, darkWordColors, segmentsForLine, wordColors, type Annotation, type Book, type Segment, type Settings } from './core';
 import { verseNumber, type TextSelection } from './bible';
 import { useReaderSelection } from './useReaderSelection';
+import { horizontalPageDirection } from './reader-gestures';
 const props = defineProps<{ book: Book; settings: Settings; target: { line: number; nonce: number }; selection: TextSelection | null; immersive: boolean }>();
 const emit = defineEmits<{ progress: [line: number]; select: [selection: TextSelection | null]; inspect: [annotation: Annotation]; immerse: []; dragging: [value: boolean] }>();
 const scroller = ref<HTMLElement>();
 const lines = computed(() => props.book.content.split('\n'));
 const { handles, lens, pointerDown, click, selectVerse, selectParagraph, beginHandle, handleKey, held } = useReaderSelection(scroller, lines, props, value => emit('select', value), () => emit('immerse'), value => emit('dragging', value));
+let swipeStart: { x: number; y: number; time: number; pointerId: number } | null = null;
 const start = ref(1), end = ref(1);
 const isBible = computed(() => props.book.chapters.some(c => c.book && c.chapter));
 const visible = computed(() => lines.value.slice(start.value-1, end.value).map((text,i) => {
@@ -53,6 +55,38 @@ function previousPart() {
   const chapterStart = props.book.chapters[ci]?.line ?? 1;
   void jump(start.value > chapterStart ? Math.max(chapterStart,start.value-120) : (props.book.chapters[ci-1]?.line ?? 1));
 }
+function onPointerDown(event: PointerEvent) {
+  pointerDown(event);
+  const target = event.target instanceof Element ? event.target : null;
+  if (!event.isPrimary || event.pointerType !== 'touch' || target?.closest('button,.selection-handle') || props.selection) {
+    swipeStart = null;
+    return;
+  }
+  swipeStart = { x: event.clientX, y: event.clientY, time: event.timeStamp, pointerId: event.pointerId };
+}
+function onPointerUp(event: PointerEvent) {
+  const gesture = swipeStart;
+  swipeStart = null;
+  const container = scroller.value;
+  if (!gesture || gesture.pointerId !== event.pointerId || !container || props.selection) return;
+  const direction = horizontalPageDirection(event.clientX - gesture.x, event.clientY - gesture.y, event.timeStamp - gesture.time, container.clientWidth);
+  if (!direction) return;
+  const atStart = container.scrollTop <= 12;
+  const atEnd = container.scrollTop + container.clientHeight >= container.scrollHeight - 24;
+  if (direction > 0 && atEnd && end.value < lines.value.length) {
+    void jump(end.value + 1);
+    return;
+  }
+  if (direction < 0 && atStart && start.value > 1) {
+    previousPart();
+    return;
+  }
+  const targetTop = Math.max(0, Math.min(container.scrollHeight - container.clientHeight, container.scrollTop + direction * container.clientHeight * 0.86));
+  container.scrollTo({ top: targetTop, behavior: 'smooth' });
+}
+function onPointerCancel(event: PointerEvent) {
+  if (swipeStart?.pointerId === event.pointerId) swipeStart = null;
+}
 let frame = 0;
 function onScroll() {
   cancelAnimationFrame(frame);
@@ -73,7 +107,7 @@ defineExpose({ jump });
 </script>
 
 <template>
-  <div ref="scroller" class="reader-scroll" :class="{ serif: settings.serif, 'bible-reader': isBible }" :style="{ '--reading-size': settings.fontSize+'px', '--reading-leading': settings.lineHeight }" @scroll.passive="onScroll" @pointerdown="pointerDown" @click="click" @contextmenu.prevent @selectstart.prevent @dragstart.prevent>
+  <div ref="scroller" class="reader-scroll" :class="{ serif: settings.serif, 'bible-reader': isBible }" :style="{ '--reading-size': settings.fontSize+'px', '--reading-leading': settings.lineHeight }" @scroll.passive="onScroll" @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @click="click" @contextmenu.prevent @selectstart.prevent @dragstart.prevent>
     <article class="reader-article" aria-label="阅读正文">
       <div class="chapter-caption">{{ isBible ? currentChapter?.testament + ' · ' + currentChapter?.book : currentChapter?.title }}</div>
       <template v-if="isBible"><h1 class="bible-chapter-title">{{currentChapter?.book}} <span>第{{currentChapter?.chapter}}章</span></h1><p class="verse-hint">长按选经文 · 拖动手柄细选 · 轻点空白沉浸阅读</p></template>

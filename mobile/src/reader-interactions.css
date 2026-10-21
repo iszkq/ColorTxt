@@ -1,5 +1,5 @@
 /* Chrome overlays the page: selection and immersion never reflow the text. */
-.reading .reader-scroll{flex:none;width:100%;height:100%;touch-action:pan-y;scroll-padding-top:calc(var(--safe-top) + 84px);scroll-padding-bottom:calc(var(--safe-bottom) + 200px)}
+.reading .reader-scroll{flex:none;width:100%;height:100%;touch-action:pan-y;overscroll-behavior-x:contain;scroll-padding-top:calc(var(--safe-top) + 84px);scroll-padding-bottom:calc(var(--safe-bottom) + 200px)}
 .reader-scroll,.reader-scroll *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .reading .reader-header{position:absolute;inset:0 0 auto;z-index:20}
 .reader-bottom{position:absolute;inset:auto 0 0;background:var(--paper);z-index:20}
@@ -29,7 +29,7 @@
 .mark-types{display:flex;gap:4px;padding:4px 0}
 .mark-types button{flex:1;min-height:44px;display:flex;gap:4px;align-items:center;justify-content:center;border-radius:8px;font-size:12px}
 .mark-types .active{background:var(--accent-soft);color:var(--accent)}
-.mark-types .apply-mark{color:var(--accent)}
+.mark-types .remove-mark{flex:0 0 auto;padding:0 10px;color:var(--danger)}
 .keyword-action{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
 .immersive-exit{position:absolute;top:calc(var(--safe-top) + 8px);right:8px;z-index:20;color:var(--muted);background:var(--paper);opacity:.7}
 .immersive-status{position:absolute;inset:auto 0 0;display:flex;justify-content:space-between;padding:12px 24px calc(var(--safe-bottom) + 10px);font:10px/1.5 var(--ui-font);color:var(--muted);background:linear-gradient(transparent,var(--paper) 45%);pointer-events:none}
